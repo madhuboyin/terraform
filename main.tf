@@ -1,6 +1,5 @@
 provider "aws" {
-  access_key = "AKIA4TCO6NG7MVLP2NF6"
-  secret_key = "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"
+  profile = "default"
   region     = "us-east-1"
 }
 data "aws_ssm_parameter" "ami" {
@@ -48,8 +47,7 @@ resource "aws_security_group" "nginx-sg" {
   }
 }
 resource "aws_instance" "nginx1" {
-
-  ami                    = nonsensitive(data.aws_ssm_parameter.ami.name)
+  ami                    = nonsensitive(data.aws_ssm_parameter.ami.value)
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.subnet1.id
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
