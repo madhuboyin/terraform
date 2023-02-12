@@ -1,6 +1,6 @@
 provider "aws" {
   profile = "default"
-  region     = "us-east-1"
+  region  = "us-east-1"
 }
 data "aws_ssm_parameter" "ami" {
   name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
@@ -47,7 +47,7 @@ resource "aws_security_group" "nginx-sg" {
   }
 }
 resource "aws_instance" "nginx1" {
-  ami                    = nonsensitive(data.aws_ssm_parameter.ami.value)
+  ami                    = data.aws_ssm_parameter.ami.value
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.subnet1.id
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
@@ -60,3 +60,4 @@ resource "aws_instance" "nginx1" {
     echo '<html><head><title>Madhu Boyina server</title></head><body style=\"backgroun-color:1F778D\"><h1>Hello Boyinas<h1></body></html>
     EOF
 }
+
