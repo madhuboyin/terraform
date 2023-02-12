@@ -1,12 +1,12 @@
 provider "aws" {
   profile = "default"
-  region  = "us-east-1"
+  region  = var.aws_region
 }
 data "aws_ssm_parameter" "ami" {
   name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
 }
 resource "aws_vpc" "vpc" {
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = "true"
 
 }
@@ -14,9 +14,9 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 }
 resource "aws_subnet" "subnet1" {
-  cidr_block              = "10.0.0.0/16"
+  cidr_block              = var.vpc_subnet1_cidr_block
   vpc_id                  = aws_vpc.vpc.id
-  map_public_ip_on_launch = "true"
+  map_public_ip_on_launch = var.map_public_ip_on_launch
 }
 resource "aws_route_table" "rtb" {
   vpc_id = aws_vpc.vpc.id
@@ -48,7 +48,7 @@ resource "aws_security_group" "nginx-sg" {
 }
 resource "aws_instance" "nginx1" {
   ami                    = data.aws_ssm_parameter.ami.value
-  instance_type          = "t2.micro"
+  instance_type          = var.instance_type
   subnet_id              = aws_subnet.subnet1.id
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
 
