@@ -40,4 +40,17 @@ variable "map_public_ip_on_launch" {
 variable "instance_type" {
   type    = string
   default = "t2.micro"
-}   
+}
+
+variable "company" {
+  type    = string
+  default = "Boyinas"
+}
+
+variable "project" {
+  type = string
+}
+
+variable "billing_code" {
+  type = string
+}       
