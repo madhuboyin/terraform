@@ -1,1 +1,0 @@
-Repository for Terraform Practice
