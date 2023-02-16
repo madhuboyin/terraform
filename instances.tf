@@ -1,33 +1,15 @@
-resource "aws_instance" "nginx1" {
+resource "aws_instance" "nginx" {
+  count                  = var.instance_count
   ami                    = nonsensitive(data.aws_ssm_parameter.ami.value)
   instance_type          = var.instance_type
-  subnet_id              = aws_subnet.subnet1.id
+  subnet_id              = module.vpc.public_subnets[(count.index % var.vpc_subnet_count)]
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
+  iam_instance_profile   = module.web_app_s3.instance_profile.name
+  depends_on             = [module.web_app_s3]
 
-  user_data = <<EOF
-    #! /bin/bash
-    sudo amazon-linux-extras install -y nginx1
-    sudo service nginx start
-    sudo rm /usr/share/nginx/html/index.html
-    echo '<html><head><title>Taco Team Server</title></head><body style=\"background-color:#1F778D\"><p style=\"text-align: center;\"><span style=\"color:#FFFFFF;\"><span style=\"font-size:28px;\">You did it! Have a &#127790;</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
-    EOF
-
-  tags = local.common_tags
+  user_data = templatefile("${path.module}/startup_script.tpl", {
+    s3_bucket_name = module.web_app_s3.web_bucket.id
+  })
+  tags = merge(local.common_tags, { Name = "${local.name_prefix}-web" })
 }
 
-resource "aws_instance" "nginx2" {
-  ami                    = nonsensitive(data.aws_ssm_parameter.ami.value)
-  instance_type          = var.instance_type
-  subnet_id              = aws_subnet.subnet2.id
-  vpc_security_group_ids = [aws_security_group.nginx-sg.id]
-
-  user_data = <<EOF
-    #! /bin/bash
-    sudo amazon-linux-extras install -y nginx1
-    sudo service nginx start
-    sudo rm /usr/share/nginx/html/index.html
-    echo '<html><head><title>Taco Team Server</title></head><body style=\"background-color:#1F778D\"><p style=\"text-align: center;\"><span style=\"color:#FFFFFF;\"><span style=\"font-size:28px;\">You did it! Have a &#127790;</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
-    EOF
-
-  tags = local.common_tags
-}
